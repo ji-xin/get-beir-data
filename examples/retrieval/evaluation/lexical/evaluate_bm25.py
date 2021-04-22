@@ -1,9 +1,12 @@
+import random
 from beir import util, LoggingHandler
 from beir.datasets.data_loader import GenericDataLoader
 from beir.retrieval.evaluation import EvaluateRetrieval
 from beir.retrieval.search.lexical import BM25Search as BM25
 
-import pathlib, os
+from read_from_marco_format import read_from_marco_format
+
+import pathlib, os, sys
 import logging
 
 #### Just some code to print debug information to stdout
@@ -13,18 +16,29 @@ logging.basicConfig(format='%(asctime)s - %(message)s',
                     handlers=[LoggingHandler()])
 #### /print debug information to stdout
 
-#### Download scifact.zip dataset and unzip the dataset
-dataset = "scifact"
-url = "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{}.zip".format(dataset)
-out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "datasets")
-data_path = util.download_and_unzip(url, out_dir)
+if os.path.exists(sys.argv[1]):
+    # After directly evaluating marco-formatted trec-covid,
+    # it seems that merging corpus title and text has a negative impact
+    # therefore we will use the original implementation for BM25
+    # instead of doing BM25 on the marco-formatted one
+    dataset = sys.argv[1][1:].replace('/', '__')
+    corpus, queries, qrels = read_from_marco_format(sys.argv[1])
+else:
+    #### Download and unzip the dataset
+    dataset = sys.argv[1]
+    url = "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{}.zip".format(dataset)
+    out_dir = os.path.join(pathlib.Path(__file__).absolute().parent.parent, "beir-data")
+    data_path = os.path.join(out_dir, dataset)
+    if not os.path.exists(data_path):
+        data_path = util.download_and_unzip(url, out_dir)
+    #data_path = util.download_and_unzip(url, out_dir)
 
-#### Provide the data_path where scifact has been downloaded and unzipped
-corpus, queries, qrels = GenericDataLoader(data_path).load(split="test")
+    #### Provide the data_path where the dataset has been downloaded and unzipped
+    corpus, queries, qrels = GenericDataLoader(data_path).load(split="test")
 
 #### Provide parameters for elastic-search
-hostname = "your-hostname" #localhost
-index_name = "your-index-name" # scifact
+hostname = "localhost" #localhost
+index_name = dataset # scifact
 initialize = True # True, will delete existing index with same name and reindex all documents
 model = BM25(index_name=index_name, hostname=hostname, initialize=initialize)
 retriever = EvaluateRetrieval(model)
@@ -34,6 +48,7 @@ results = retriever.retrieve(corpus, queries)
 
 #### Evaluate your retrieval using NDCG@k, MAP@K ...
 ndcg, _map, recall, precision = retriever.evaluate(qrels, results, retriever.k_values)
+exit(0)
 
 #### Retrieval Example ####
 query_id, scores_dict = random.choice(list(results.items()))

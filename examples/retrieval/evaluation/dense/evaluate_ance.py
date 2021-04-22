@@ -5,7 +5,7 @@ from beir.retrieval.evaluation import EvaluateRetrieval
 from beir.retrieval.search.dense import DenseRetrievalExactSearch as DRES
 
 import logging
-import pathlib, os
+import pathlib, os, sys
 import random
 
 #### Just some code to print debug information to stdout
@@ -15,11 +15,11 @@ logging.basicConfig(format='%(asctime)s - %(message)s',
                     handlers=[LoggingHandler()])
 #### /print debug information to stdout
 
-dataset = "nfcorpus"
+dataset = sys.argv[1]
 
 #### Download NFCorpus dataset and unzip the dataset
 url = "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{}.zip".format(dataset)
-out_dir = os.path.join(pathlib.Path(__file__).parent.absolute(), "datasets")
+out_dir = os.path.join(pathlib.Path(__file__).absolute().parent.parent, "beir-data")
 data_path = util.download_and_unzip(url, out_dir)
 
 #### Provide the data path where nfcorpus has been downloaded and unzipped to the data loader
