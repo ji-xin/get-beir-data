@@ -27,7 +27,8 @@ else:
     #### Download and unzip the dataset
     dataset = sys.argv[1]
     url = "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{}.zip".format(dataset)
-    out_dir = os.path.join(pathlib.Path(__file__).absolute().parent.parent, "beir-data")
+    out_dir = os.path.join(pathlib.Path(__file__).absolute().parent.parent.parent.parent.parent,
+                           "beir-data")
     data_path = os.path.join(out_dir, dataset)
     if not os.path.exists(data_path):
         data_path = util.download_and_unzip(url, out_dir)
