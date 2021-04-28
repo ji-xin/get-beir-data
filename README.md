@@ -1,3 +1,16 @@
+# Experiment for ANCE + Domain_adaptation
+
+Step 0: Install from source `pip install -e .`.
+
+Suppose we want to run experiments with a dataset `DS`
+
+Step 1: Go to `examples/retrieval/evaluation/lexical`, run`python evaluate_bm25.py DS`. It will automatically download the dataset and do BM25 evaluation. Before this, Elastic Search must be installed and run.
+
+Step 2: Go to `beir-data`, run `python format.py DS` and `python generate_triples_simple.py DS`.
+
+Step 3: Go to the ANCE-working repo, go to `data`, run `bash data_preprocess_beir.sh DS`. Step 2 and Step 3 together generate files necessary for ANCE experiments.
+
+
 <h1 style="text-align:center">
 <img style="vertical-align:middle" width="450" height="180" src="https://raw.githubusercontent.com/benchmarkir/beir/main/images/color_logo_transparent_cropped.png" />
 </h1>
