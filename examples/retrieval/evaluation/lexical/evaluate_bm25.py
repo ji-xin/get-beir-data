@@ -16,6 +16,8 @@ logging.basicConfig(format='%(asctime)s - %(message)s',
                     handlers=[LoggingHandler()])
 #### /print debug information to stdout
 
+SAVE_BM25_RESULTS = False
+
 if os.path.exists(sys.argv[1]):
     # After directly evaluating marco-formatted trec-covid,
     # it seems that merging corpus title and text has a negative impact
@@ -46,6 +48,11 @@ retriever = EvaluateRetrieval(model)
 
 #### Retrieve dense results (format of results is identical to qrels)
 results = retriever.retrieve(corpus, queries)
+if SAVE_BM25_RESULTS:
+    with open(os.path.join(sys.argv[1], 'runs.bm25.txt'), 'w') as fout:
+        for qid, q_list in results.items():
+            for rank, (pid, score) in enumerate(q_list.items()):
+                print(f'{qid} Q0 {pid} {rank+1} {score} BM25', file=fout)
 
 #### Evaluate your retrieval using NDCG@k, MAP@K ...
 ndcg, _map, recall, precision = retriever.evaluate(qrels, results, retriever.k_values)
