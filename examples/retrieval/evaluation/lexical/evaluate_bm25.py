@@ -16,17 +16,18 @@ logging.basicConfig(format='%(asctime)s - %(message)s',
                     handlers=[LoggingHandler()])
 #### /print debug information to stdout
 
-SAVE_BM25_RESULTS = False
 
 if os.path.exists(sys.argv[1]):
     # After directly evaluating marco-formatted trec-covid,
     # it seems that merging corpus title and text has a negative impact
     # therefore we will use the original implementation for BM25
     # instead of doing BM25 on the marco-formatted one
+    SAVE_BM25_RESULTS = True
     dataset = sys.argv[1][1:].replace('/', '__')
     corpus, queries, qrels = read_from_marco_format(sys.argv[1])
 else:
     #### Download and unzip the dataset
+    SAVE_BM25_RESULTS = False
     dataset = sys.argv[1]
     url = "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{}.zip".format(dataset)
     out_dir = os.path.join(pathlib.Path(__file__).absolute().parent.parent.parent.parent.parent,
