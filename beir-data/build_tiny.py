@@ -2,17 +2,22 @@ import os
 import sys
 
 """
-Use BM25 to retrieve top500 documents for all queries (~200k in total)
-these documents together constitute the collection of tinybioasq
+Use BM25 to retrieve topk documents for all queries
+these documents together, along with relevant documents from qrels
+constitute the collection of the tiny dataset
 """
+
+dataset = sys.argv[1]
+output_folder = sys.argv[2]
+topk = int(sys.argv[3])
 
 queries = {}
 documents = {}
 qrels = {}
 rel_pids = set()  # top50 documents from BM25, plus all from qrels
 
-in_folder = "../bioasq7/marco-format"
-out_folder = "./marco-format"
+in_folder = f"{dataset}/marco-format"
+out_folder = f"{output_folder}/marco-format"
 os.makedirs(out_folder, exist_ok=True)
 
 with open(os.path.join(in_folder, 'queries.tsv')) as fin:
@@ -37,7 +42,7 @@ with open(os.path.join(in_folder, 'runs.bm25.txt')) as fin:
         qid, _, pid, rank, score, _ = line.strip().split(' ')
         qid, pid, rank = int(qid), int(pid), int(rank)
         assert qid in queries
-        if rank <= 500:
+        if rank <= topk:
             rel_pids.add(pid)
 
 with open(os.path.join(in_folder, 'collection.tsv')) as fin:

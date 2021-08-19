@@ -3,12 +3,13 @@ import os
 
 out_dir = "marco-format"
 os.makedirs(out_dir, exist_ok=True)
+print("Preprocessing BioASQ. This is gonna take a while.")
 
 # documents
 did2dmid = {}
 count = 0
 with open(os.path.join(out_dir, "collection.tsv"), 'w') as fout:
-    with open("additional_passages.tsv") as fin:
+    with open("external_data/additional_passages.tsv") as fin:
         for line in fin:
             try:
                 did, title, body = line.strip().split('\t')
@@ -22,7 +23,7 @@ with open(os.path.join(out_dir, "collection.tsv"), 'w') as fout:
             print(f'{count}\t{text}', file=fout)
             count += 1
 
-    with open("allMeSH_2020.json", encoding="ISO-8859-1") as fin:
+    with open("external_data/allMeSH_2020.json", encoding="ISO-8859-1") as fin:
         jsonf = json.load(fin)
         for article in jsonf["articles"]:
             did, title, body = article["pmid"], article["title"], article["abstractText"]
@@ -47,12 +48,12 @@ with open(os.path.join(out_dir, "did2dmid.tsv"), 'w') as fout:
 
 
 # query
-in_dir = "Task8BGoldenEnriched"
+in_dir = "external_data/Task8BGoldenEnriched"
 qid2qmid = {}
 qid2reldoc = {}  # use marcoid here
 count = 0
 with open(os.path.join(out_dir, "queries.tsv"), 'w') as fout:
-    for fname in os.listdir(in_dir):
+    for fname in sorted(os.listdir(in_dir)):
         with open(os.path.join(in_dir, fname)) as fin:
             jsonf = json.load(fin)
             for question in jsonf['questions']:

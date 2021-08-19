@@ -17,7 +17,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s',
 #### /print debug information to stdout
 
 
-if os.path.exists(sys.argv[1]):
+if os.path.exists(sys.argv[1]) and 'marco-format' in sys.argv[1]:
     # After directly evaluating marco-formatted trec-covid,
     # it seems that merging corpus title and text has a negative impact
     # therefore we will use the original implementation for BM25
