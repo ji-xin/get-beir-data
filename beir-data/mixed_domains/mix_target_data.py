@@ -1,19 +1,19 @@
 import os
 
-input_domains = ['trec-covid', 'dbpedia-entity', 'robust04']
-output_name = 'tcdbrb'
+input_domains = ['tinybioasq', 'trec-covid']
+output_name = 'BioCovid'
 
 os.makedirs(output_name, exist_ok=True)
 input_lines = []
 for domain in input_domains:
-    if domain == 'robust04':
-        input_fname = '/mnt/robust04/triples.simple.tsv'
-    else:
-        input_fname = f'{domain}/triples.simple.tsv'
+    input_fname = f'../{domain}/triples.simple.tsv'
 
     with open(input_fname) as fin:
         input_lines.append(fin.readlines())
 
+
+# Make sure each input domain has the same contribution to the mixed dataset
+# Repeat some input domains if necessary
 finished = [0 for _ in range(len(input_domains))]
 which_domain = 0
 domain_pointers = [0 for _ in range(len(input_domains))]
