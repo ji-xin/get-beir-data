@@ -54,6 +54,7 @@ if SAVE_BM25_RESULTS:
         for qid, q_list in results.items():
             for rank, (pid, score) in enumerate(q_list.items()):
                 print(f'{qid} Q0 {pid} {rank+1} {score} BM25', file=fout)
+    os.system(f"python count_hole.py {os.path.join(sys.argv[1], 'runs.bm25.txt')} {os.path.join(sys.argv[1], 'qrels.tsv')}")
 
 #### Evaluate your retrieval using NDCG@k, MAP@K ...
 ndcg, _map, recall, precision = retriever.evaluate(qrels, results, retriever.k_values)
