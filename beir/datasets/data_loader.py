@@ -66,13 +66,13 @@ class GenericDataLoader:
         if not len(self.corpus):
             self._load_corpus()
             logger.info("Loaded %d %s Documents.", len(self.corpus), split.upper())
-            logger.info("Doc Example: %s", list(self.corpus.values())[0])
+            # logger.info("Doc Example: %s", list(self.corpus.values())[0])
         
         if os.path.exists(self.qrels_file):
             self._load_qrels()
             self.queries = {qid: self.queries[qid] for qid in self.qrels}
             logger.info("Loaded %d %s Queries.", len(self.queries), split.upper())
-            logger.info("Query Example: %s", list(self.queries.values())[0])
+            # logger.info("Query Example: %s", list(self.queries.values())[0])
         
         return self.corpus, self.queries, self.qrels
     
