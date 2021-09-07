@@ -6,6 +6,7 @@ from beir.retrieval import models
 from beir.retrieval.train import TrainRetriever
 from beir.retrieval.evaluation import EvaluateRetrieval
 from beir.retrieval.search.dense import DenseRetrievalExactSearch as DRES
+from beir.datasets.read_from_marco_format import read_from_marco_format
 from sentence_transformers import losses
 
 import pathlib, os, sys
@@ -20,25 +21,34 @@ logging.basicConfig(format='%(asctime)s - %(message)s',
 
 logger = logging.getLogger(__name__)
 
-#### Download nfcorpus.zip dataset and unzip the dataset
-dataset = sys.argv[1]
-url = "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{}.zip".format(dataset)
 
-out_dir = os.path.join(
-    pathlib.Path(__file__).absolute().parent.parent.parent,
-    "beir-data"
-)
-data_path = os.path.join(out_dir, dataset)
-if not os.path.exists(data_path):
-    data_path = util.download_and_unzip(url, out_dir)
+if os.path.exists(sys.argv[1]) and 'marco-format' in sys.argv[1]:
+    dataset = sys.argv[1].split('/')[-2]
+    data_path = pathlib.Path(sys.argv[1]).parent
+    logger.info(f"Loading {dataset} directly from marco-format. It's gonna take a while.")
+    corpus, queries, qrels = read_from_marco_format(sys.argv[1])
+    use_dev = False
+
 else:
-    logger.info(f"{dataset} already downloaded")
+    #### Download nfcorpus.zip dataset and unzip the dataset
+    dataset = sys.argv[1]
+    url = "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{}.zip".format(dataset)
 
-use_dev = os.path.exists(os.path.join(data_path, "qrels", "dev.tsv"))
+    out_dir = os.path.join(
+        pathlib.Path(__file__).absolute().parent.parent.parent,
+        "beir-data"
+    )
+    data_path = os.path.join(out_dir, dataset)
+    if not os.path.exists(data_path):
+        data_path = util.download_and_unzip(url, out_dir)
+    else:
+        logger.info(f"{dataset} already downloaded")
 
-#### Provide the data_path where the dataset has been downloaded and unzipped
-# corpus = GenericDataLoader(data_path).load_corpus()
-corpus, test_queries, test_qrels = GenericDataLoader(data_folder=data_path).load(split="test")
+    use_dev = os.path.exists(os.path.join(data_path, "qrels", "dev.tsv"))
+
+    #### Provide the data_path where the dataset has been downloaded and unzipped
+    # corpus = GenericDataLoader(data_path).load_corpus()
+    corpus, test_queries, test_qrels = GenericDataLoader(data_folder=data_path).load(split="test")
 
 
 
@@ -53,8 +63,10 @@ generator = QGen(model=QGenModel(model_path))
 
 #### Query-Generation using Nucleus Sampling (top_k=25, top_p=0.95) ####
 #### https://huggingface.co/blog/how-to-generate
-#### Prefix is required to seperate out synthetic queries and qrels from original
-prefix = "gen"
+#### Instead of prefix, we use a separate folder
+prefix = ""
+gen_data_path = os.path.join(data_path, "genq")
+os.makedirs(gen_data_path, exist_ok=True)
 
 #### Generating 3 questions per passage. 
 #### Reminder the higher value might produce lots of duplicates
@@ -64,7 +76,7 @@ capped_corpus = {k:v for k,v in list(corpus.items())[:max_corpus_size]}
 
 
 #### Generate queries per passage from docs in corpus and save them in data_path
-generator.generate(capped_corpus, output_dir=data_path, ques_per_passage=ques_per_passage,
+generator.generate(capped_corpus, output_dir=gen_data_path, ques_per_passage=ques_per_passage,
                    prefix=prefix)
 exit(0)  # we only need generated queries for now
 
@@ -74,7 +86,7 @@ exit(0)  # we only need generated queries for now
 
 
 #### Training on Generated Queries ####
-corpus, gen_queries, gen_qrels = GenericDataLoader(data_path, prefix=prefix).load(split="train")
+train_corpus, gen_queries, gen_qrels = GenericDataLoader(gen_data_path, prefix=prefix).load(split="train")
 #### Please Note - not all datasets contain a dev split, comment out the line if such the case
 if use_dev:
     dev_corpus, dev_queries, dev_qrels = GenericDataLoader(data_path).load(split="dev")
@@ -84,7 +96,7 @@ model_name = "bert-base-uncased"
 retriever = TrainRetriever(model_name=model_name, batch_size=32)
 
 #### Prepare training samples
-train_samples = retriever.load_train(corpus, gen_queries, gen_qrels)
+train_samples = retriever.load_train(train_corpus, gen_queries, gen_qrels)
 train_dataloader = retriever.prepare_train(train_samples, shuffle=True)
 train_loss = losses.MultipleNegativesRankingLoss(model=retriever.model)
 

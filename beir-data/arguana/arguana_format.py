@@ -1,10 +1,19 @@
+"""
+Difference with format.py:
+If a query and a document have the same ID before preprocessing,
+then they will have the same ID after,
+so we can exclude query_id==passage_id situations in evaluation (of course, only for arguana)
+
+run `python arguana_format.py .` for itself
+and `python arguana_format.py genq` for genq
+"""
+
 import json
 import os
 import sys
 
 dataset = sys.argv[1]
-use_genq = 'genq' in dataset
-
+use_genq = dataset == 'genq'
 
 in_folder = dataset
 out_folder = os.path.join(dataset, 'marco-format')
@@ -64,13 +73,19 @@ with open(os.path.join(in_folder, 'qrels', f'{split}.tsv')) as fin:
             if line_idx == 0:
                 continue
             qid, did, score = line.strip().split('\t')
-            if qid not in qid2qmid:
-                qid2qmid[qid] = count
-                count += 1
+
+            # special for arguana
+            if qid in did2dmid:
+                qmid = did2dmid[qid]
+            elif qid not in qid2qmid:
+                qmid = count + len(did2dmid)  # to avoid conflicts
+            count += 1
+            qid2qmid[qid] = qmid
+
             if did not in did2dmid:
                 missing += 1
             else:
-                print(f'{qid2qmid[qid]}\t0\t{did2dmid[did]}\t{score}', file=fout)
+                print(f'{qmid}\t0\t{did2dmid[did]}\t{score}', file=fout)
 
 print(f'Get {count} queries, discard {missing} qrels with unknown document ids')
 

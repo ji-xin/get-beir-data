@@ -4,7 +4,7 @@ from beir.datasets.data_loader import GenericDataLoader
 from beir.retrieval.evaluation import EvaluateRetrieval
 from beir.retrieval.search.lexical import BM25Search as BM25
 
-from read_from_marco_format import read_from_marco_format
+from beir.datasets.read_from_marco_format import read_from_marco_format
 
 import pathlib, os, sys
 import logging

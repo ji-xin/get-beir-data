@@ -1,5 +1,6 @@
 marco-format/
 preprocessed_data/
+batch.sh
 
 dbpedia-entity/
 nfcorpus/
@@ -12,7 +13,6 @@ tinynq/
 trec-covid/
 fulltreccovid/
 webis-touche2020/
-arguana/
 climate-fever/
 fever/
 fiqa/

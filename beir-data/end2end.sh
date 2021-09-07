@@ -1,4 +1,5 @@
 # do `conda activate beir` before running this
+# genq and seed preprocessing not included yet
 
 dataset=${1}
 old_dir=$PWD
