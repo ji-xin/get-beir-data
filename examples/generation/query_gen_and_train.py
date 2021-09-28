@@ -64,7 +64,7 @@ generator = QGen(model=QGenModel(model_path))
 #### Query-Generation using Nucleus Sampling (top_k=25, top_p=0.95) ####
 #### https://huggingface.co/blog/how-to-generate
 #### Instead of prefix, we use a separate folder
-prefix = ""
+prefix = "genq"  # strip the prefix separately and manually after generating
 gen_data_path = os.path.join(data_path, "genq")
 os.makedirs(gen_data_path, exist_ok=True)
 
