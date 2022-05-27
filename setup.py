@@ -20,7 +20,7 @@ setup(
         'sentence-transformers',
         'pytrec_eval',
         'faiss_cpu',
-        'elasticsearch',
+        'elasticsearch==7.12.0',
         'tensorflow>=2.2.0',
         'tensorflow-text',
         'tensorflow-hub'

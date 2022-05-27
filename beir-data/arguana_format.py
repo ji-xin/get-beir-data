@@ -4,8 +4,7 @@ If a query and a document have the same ID before preprocessing,
 then they will have the same ID after,
 so we can exclude query_id==passage_id situations in evaluation (of course, only for arguana)
 
-run `python arguana_format.py .` for itself
-and `python arguana_format.py genq` for genq
+run `python arguana_format.py arguana` for itself
 """
 
 import json
@@ -13,7 +12,6 @@ import os
 import sys
 
 dataset = sys.argv[1]
-use_genq = dataset == 'genq'
 
 in_folder = dataset
 out_folder = os.path.join(dataset, 'marco-format')
@@ -37,10 +35,7 @@ did2dmid = {}
 
 count = 0
 missing = 0
-if use_genq:
-    corpus_file = os.path.join(in_folder, '..', 'corpus.jsonl')
-else:
-    corpus_file = os.path.join(in_folder, 'corpus.jsonl')
+corpus_file = os.path.join(in_folder, 'corpus.jsonl')
 with open(corpus_file) as fin:
     with open(os.path.join(out_folder, 'collection.tsv'), 'w') as fout:
         for line in fin:
@@ -66,7 +61,7 @@ qid2qmid = {}
 
 count = 0  # for query
 missing = 0
-split = 'train' if 'genq' in sys.argv[1] else 'test'
+split = 'test'
 with open(os.path.join(in_folder, 'qrels', f'{split}.tsv')) as fin:
     with open(os.path.join(out_folder, 'qrels.tsv'), 'w') as fout:
         for line_idx, line in enumerate(fin):

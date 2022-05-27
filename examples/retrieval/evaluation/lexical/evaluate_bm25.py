@@ -33,16 +33,15 @@ else:
     out_dir = os.path.join(pathlib.Path(__file__).absolute().parent.parent.parent.parent.parent,
                            "beir-data")
     data_path = os.path.join(out_dir, dataset)
-    if not os.path.exists(data_path):
+    if not os.path.exists(os.path.join(data_path, 'corpus.jsonl')):
         data_path = util.download_and_unzip(url, out_dir)
-    #data_path = util.download_and_unzip(url, out_dir)
 
     #### Provide the data_path where the dataset has been downloaded and unzipped
     corpus, queries, qrels = GenericDataLoader(data_path).load(split="test")
 
 #### Provide parameters for elastic-search
-hostname = "localhost" #localhost
-index_name = dataset # scifact
+hostname = "localhost"
+index_name = dataset
 initialize = True # True, will delete existing index with same name and reindex all documents
 model = BM25(index_name=index_name, hostname=hostname, initialize=initialize)
 retriever = EvaluateRetrieval(model)

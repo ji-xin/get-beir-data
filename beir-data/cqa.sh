@@ -15,15 +15,15 @@ for ds in $dss; do
     fi
 done
 
-cd ~/projects/ANCE-working/ANCE/data
-source ~/miniconda3/etc/profile.d/conda.sh  # otherwise we can't activate another conda env
-conda activate ance
-for ds in $dss; do
-    if [[ ! $ds = $all ]]; then
-        bash data_preprocess_beir.sh ${old_dir}/${root}/${ds}
-    fi
-done
+# cd ~/projects/ANCE-working/ANCE/data
+# source ~/miniconda3/etc/profile.d/conda.sh  # otherwise we can't activate another conda env
+# conda activate ance
+# for ds in $dss; do
+#     if [[ ! $ds = $all ]]; then
+#         bash data_preprocess_beir.sh ${old_dir}/${root}/${ds}
+#     fi
+# done
 
-cd ${old_dir}/${root}/${all}
-ln -s ../tex/preprocessed_data ./preprocessed_data
+# cd ${old_dir}/${root}/${all}
+# ln -s ../tex/preprocessed_data ./preprocessed_data
 
